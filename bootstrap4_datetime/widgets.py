@@ -43,7 +43,7 @@ class DateTimePicker(DateTimeInput):
     <div%(div_attrs)s>
       <input%(input_attrs)s/>
       <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="button">
+        <button%(button_attrs)s>
           <span%(icon_attrs)s></span>
         </button>
       </div>
@@ -56,11 +56,13 @@ class DateTimePicker(DateTimeInput):
       });
     </script>"""
 
-    def __init__(self, attrs=None, format=None, options=None, div_attrs=None, icon_attrs=None):
+    def __init__(self, attrs=None, format=None, options=None, div_attrs=None, icon_attrs=None, button_attrs=None):
         if not icon_attrs:
             icon_attrs = {'class': 'fa fa-calendar'}
         if not div_attrs:
             div_attrs = {'class': 'input-group date'}
+        if not button_attrs:
+            button_attrs = {'class': 'btn btn-outline-secondary', 'type': 'button'}
         if format is None and options and options.get('format'):
             format = self.conv_datetime_format_js2py(options.get('format'))
         super(DateTimePicker, self).__init__(attrs, format)
@@ -68,6 +70,7 @@ class DateTimePicker(DateTimeInput):
             self.attrs['class'] = 'form-control'
         self.div_attrs = div_attrs and div_attrs.copy() or {}
         self.icon_attrs = icon_attrs and icon_attrs.copy() or {}
+        self.button_attrs = button_attrs and button_attrs.copy() or {}
         self.picker_id = self.div_attrs.get('id') or None
         if options == False:  # datetimepicker will not be initalized when options is False
             self.options = False
@@ -94,10 +97,12 @@ class DateTimePicker(DateTimeInput):
         self.div_attrs['id'] = self.picker_id
         picker_id = conditional_escape(self.picker_id)
         div_attrs = {key: conditional_escape(val) for key, val in self.div_attrs.items()}
+        button_attrs = {key: conditional_escape(val) for key, val in self.button_attrs.items()}
         icon_attrs = {key: conditional_escape(val) for key, val in self.icon_attrs.items()}
         html = self.html_template % dict(div_attrs=flatatt(div_attrs),
                                          input_attrs=flatatt(input_attrs),
-                                         icon_attrs=flatatt(icon_attrs))
+                                         icon_attrs=flatatt(icon_attrs),
+                                         button_attrs=flatatt(button_attrs))
         if self.options:
             js = self.js_template % dict(picker_id=picker_id, options=json.dumps(self.options or {}))
         else:
